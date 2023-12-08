@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Http\Requests\UserRequest;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 
 class UserController extends Controller
@@ -19,7 +20,7 @@ class UserController extends Controller
         return User::all();
     }
 
-    
+
 
     /**
      * Store a newly created resource in storage.
@@ -45,7 +46,7 @@ class UserController extends Controller
         return User::findOrFail($id);
     }
 
-   
+
 
     /**
      * Update the specified resource in storage.
@@ -53,45 +54,44 @@ class UserController extends Controller
     public function update(UserRequest $request, string $id)
     {
         //
-        $user= User::findorFail($id);
+        $user = User::findorFail($id);
 
         $validated = $request->validated();
-        
+
         $user->name =  $validated['name'];
- 
+
         $user->save();
 
         return $user;
-        
     }
 
-     /**
+    /**
      * Update email of the specified resource in storage.
      */
     public function email(UserRequest $request, string $id)
     {
-        $user= User::findorFail($id);
+        $user = User::findorFail($id);
 
         $validated = $request->validated();
-        
+
         $user->email =  $validated['email'];
- 
+
         $user->save();
 
         return $user;
     }
 
-     /**
+    /**
      * Update the password specified resource in storage.
      */
     public function password(UserRequest $request, string $id)
     {
-        $user= User::findorFail($id);
+        $user = User::findorFail($id);
 
         $validated = $request->validated();
-        
+
         $user->password =  $validated['password'];
- 
+
         $user->save();
 
         return $user;
@@ -106,6 +106,24 @@ class UserController extends Controller
         $user = User::findOrFail($id);
 
         $user->delete();
+
+        return $user;
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function image(UserRequest $request, string $id)
+    {
+        $user = User::findorFail($id);
+
+        if (!is_null($user->image)) {
+            Storage::disk('public')->delete($user->image);
+        }
+
+        $user->image = $request->file('image')->storePublicly('images', 'public');
+
+        $user->save();
 
         return $user;
     }
